@@ -198,7 +198,7 @@ public class EmployeePayrollService {
 		try {
 			try {
 				connection=employeePayrollService.connectingToDatabase();
-				String query = "select * from payroll_data where name=?";
+				String query = "select * from employee_payroll where name=?";
 				employeePayrollService.preparedSqlStatement = connection.prepareStatement(query);	
 				} catch (SQLException e) {
 				throw new EmployeePayrollServiceException("Preparation Failed.");
