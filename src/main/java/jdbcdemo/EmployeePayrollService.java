@@ -19,7 +19,7 @@ public class EmployeePayrollService {
 	public static EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 	public Connection connection;
 	public Statement statementOpted;
-	public ResultSet resultSetOpted;
+	public static ResultSet resultSetOpted;
 	public PreparedStatement preparedSqlStatement;
 	private List<EmployeePayrollData> employeePayrollDBList;
 
@@ -31,6 +31,7 @@ public class EmployeePayrollService {
 		employeePayrollService.updateEmployeeSalary("SURAJ", 950000.00);
 		employeePayrollService.updateEmployeePayrollDataUsingPrepredStatement("SURAJ", 950000.00);
 		employeePayrollService.checkSyncWithDB("SURAJ");
+		employeePayrollService.readEmployeePayrollDataFromResultset(resultSetOpted);
 		
 		
 
@@ -190,6 +191,39 @@ public class EmployeePayrollService {
 
 		}
 
+	}
+	private List<EmployeePayrollData> readEmployeePayrollDataFromResultset(ResultSet resultSet)
+			throws EmployeePayrollServiceException, SQLException {
+		employeePayrollDBList = new ArrayList<EmployeePayrollData>();
+		try {
+			try {
+				connection=employeePayrollService.connectingToDatabase();
+				String query = "select * from payroll_data where name=?";
+				employeePayrollService.preparedSqlStatement = connection.prepareStatement(query);	
+				} catch (SQLException e) {
+				throw new EmployeePayrollServiceException("Preparation Failed.");
+			}
+			 
+			
+			
+			do{
+				Integer id = resultSet.getInt("ID");
+				String objectname = resultSet.getString("NAME");
+				String gender = resultSet.getString("GENDER");
+				Double salary = resultSet.getDouble("SALARY");
+				LocalDate start = resultSet.getDate("START").toLocalDate();
+				employeePayrollDBList.add(new EmployeePayrollData(id, objectname, gender, salary, start));
+			}while (resultSet.next()) ;
+			
+			return employeePayrollDBList;
+		} catch (SQLException e) {
+			throw new EmployeePayrollServiceException("Reusing Result Set failed.");
+		}
+		finally {
+			if (connection != null)
+				connection.close();
+		}
+		
 	}
 
 }
