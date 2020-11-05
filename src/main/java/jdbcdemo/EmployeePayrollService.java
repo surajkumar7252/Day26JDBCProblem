@@ -22,6 +22,7 @@ public class EmployeePayrollService {
 	public static ResultSet resultSetOpted;
 	public PreparedStatement preparedSqlStatement;
 	private List<EmployeePayrollData> employeePayrollDBList;
+	static LocalDate startDate;
 
 	public static void main(String[] args) throws EmployeePayrollServiceException, SQLException {
 		employeePayrollService.connectingToDatabase();
@@ -32,6 +33,8 @@ public class EmployeePayrollService {
 		employeePayrollService.updateEmployeePayrollDataUsingPrepredStatement("SURAJ", 950000.00);
 		employeePayrollService.checkSyncWithDB("SURAJ");
 		employeePayrollService.readEmployeePayrollDataFromResultset(resultSetOpted);
+		startDate=LocalDate.of(2017, 1, 13);
+		employeePayrollService.getEmployeePayrollDataByDateOfStarting(startDate, LocalDate.now());
 		
 		
 
@@ -198,7 +201,7 @@ public class EmployeePayrollService {
 		try {
 			try {
 				connection=employeePayrollService.connectingToDatabase();
-				String query = "select * from payroll_data where name=?";
+				String query = "select * from employee_payroll where name=?";
 				employeePayrollService.preparedSqlStatement = connection.prepareStatement(query);	
 				} catch (SQLException e) {
 				throw new EmployeePayrollServiceException("Preparation Failed.");
@@ -224,6 +227,19 @@ public class EmployeePayrollService {
 				connection.close();
 		}
 		
+	}
+	
+	public List<EmployeePayrollData> getEmployeePayrollDataByDateOfStarting(LocalDate startDate, LocalDate endDate)
+			throws EmployeePayrollServiceException {
+		String query = String.format("select * from employee_payroll where start between cast('%s' as date) and cast('%s' as date);");
+		try {
+			connection=employeePayrollService.connectingToDatabase();
+			statementOpted = connection.createStatement();
+			 resultSetOpted = statementOpted.executeQuery(query);
+			return employeePayrollService.readEmployeePayrollDataFromResultset(resultSetOpted);
+		} catch (SQLException e) {
+			throw new EmployeePayrollServiceException("Connection Failed.");
+		}
 	}
 
 }
