@@ -23,6 +23,15 @@ public class EmployeePayrollService {
 	public PreparedStatement preparedSqlStatement;
 	private List<EmployeePayrollData> employeePayrollDBList;
 	static LocalDate startDate;
+	
+	
+	static Double femaleResult = 0.0;
+	static Double maleResult = 0.0;
+	
+	public enum TypeOfCalculation {
+		AVG, SUM, MIN, MAX, COUNT
+	}
+	public TypeOfCalculation calcType;
 
 	public static void main(String[] args) throws EmployeePayrollServiceException, SQLException {
 		employeePayrollService.connectingToDatabase();
@@ -241,5 +250,41 @@ public class EmployeePayrollService {
 			throw new EmployeePayrollServiceException("Connection Failed.");
 		}
 	}
+	
+	public void makeComputations(TypeOfCalculation calculationType) throws EmployeePayrollServiceException {
+		Double maleCalcResult=0.0;
+		Double femaleCalcResult=0.0;
+		String query=null;
+		switch(calcType) {
+		case AVG:query=String.format("select gender, AVG(salary) from employee_payroll group by gender");
+		         break;
+		case SUM:query=String.format("select gender, SUM(salary) from employee_payroll group by gender");
+                 break;   
+		case COUNT:query=String.format("select gender, COUNT(salary) from employee_payroll group by gender");
+                 break;
+		case MIN:query=String.format("select gender, SUM(salary) from employee_payroll group by gender");
+                break;
+		case MAX:query=String.format("select gender, SUM(salary) from employee_payroll group by gender");
+                   break;
+		}
+		try {
+			connection=employeePayrollService.connectingToDatabase();
+			statementOpted = connection.createStatement();
+			 resultSetOpted = statementOpted.executeQuery(query);
+			
+			while(resultSetOpted.next()) {
+				if(resultSetOpted.getString("gender").equals("M")) maleCalcResult=resultSetOpted.getDouble("salary");
+				else femaleCalcResult=resultSetOpted.getDouble("salary");
+			}
+			log.info("Female Total calculation"+femaleCalcResult);
+			log.info("Male Total calculation"+maleCalcResult);
+			
+		} catch (SQLException e) {
+			throw new EmployeePayrollServiceException("Unable to use resultset");
+		}
+	}
+
+
+	
 
 }
