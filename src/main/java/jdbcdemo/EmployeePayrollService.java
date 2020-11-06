@@ -28,7 +28,7 @@ public class EmployeePayrollService {
 		employeePayrollService.readEmployeePayrollData();
 		employeePayrollService.updateEmployeePayrollDataUsingStatement("SURAJ", 950000.00);
 		employeePayrollService.readEmployeePayrollDataFromDataBase("SURAJ");
-		employeePayrollService.updateEmployeeSalary("SURAJ", 950000.00);
+		
 		employeePayrollService.updateEmployeePayrollDataUsingPrepredStatement("SURAJ", 950000.00);
 		employeePayrollService.checkSyncWithDB("SURAJ");
 		
@@ -106,22 +106,7 @@ public class EmployeePayrollService {
 		}
 	}
 
-	private void updateEmployeeSalary(String name, Double salary)
-			throws EmployeePayrollServiceException, SQLException {
-		String query = String.format("update emplyee_Payroll set salary=%f where name='%s'", salary, name);
-		try {
-			connection = employeePayrollService.connectingToDatabase();
-			statementOpted = connection.createStatement();
-			statementOpted.executeUpdate(query);
-			log.info("Updation Complete");
-		} catch (SQLException e) {
-			throw new EmployeePayrollServiceException("Updation Failed");
-
-		} finally {
-			if (connection != null)
-				connection.close();
-		}
-	}
+	
 	public List<EmployeePayrollData> readEmployeePayrollDataFromDataBase(String name)
 			throws EmployeePayrollServiceException, SQLException {
 		
