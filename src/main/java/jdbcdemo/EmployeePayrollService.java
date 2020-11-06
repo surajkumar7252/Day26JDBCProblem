@@ -44,7 +44,7 @@ public Connection connectingToDatabase() throws EmployeePayrollServiceException 
 
 		String jdbcurl = "jdbc:mysql://127.0.0.1:3306/payroll_service?useSSL=false";
 		String userName = "root";
-		String password = "Star@9835";
+		String password = "HeyBro@1234";
 		Connection connection;
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
