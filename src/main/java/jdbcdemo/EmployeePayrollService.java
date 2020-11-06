@@ -35,7 +35,7 @@ public class EmployeePayrollService {
 
 	public static void main(String[] args) throws EmployeePayrollServiceException, SQLException {
 		employeePayrollService.connectingToDatabase();
-		employeePayrollService.readEmployeePayrollData();
+	    employeePayrollService.readEmployeePayrollData();
 		employeePayrollService.updateEmployeePayrollDataUsingStatement("SURAJ", 950000.00);
 		employeePayrollService.readEmployeePayrollDataFromDataBase("SURAJ");
 		employeePayrollService.updateEmployeeSalary("SURAJ", 950000.00);
@@ -44,7 +44,7 @@ public class EmployeePayrollService {
 		employeePayrollService.readEmployeePayrollDataFromResultset(resultSetOpted);
 		startDate=LocalDate.of(2017, 1, 13);
 		employeePayrollService.getEmployeePayrollDataByDateOfStarting(startDate, LocalDate.now());
-		
+		employeePayrollService.makeComputations(TypeOfCalculation.AVG);
 		
 
 	}
@@ -53,7 +53,7 @@ public class EmployeePayrollService {
 
 		String jdbcurl = "jdbc:mysql://127.0.0.1:3306/payroll_service?useSSL=false";
 		String userName = "root";
-		String password = "Heybro@1234";
+		String password = "HeyBro@1234";
 		Connection connection;
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -104,7 +104,7 @@ public class EmployeePayrollService {
 
 	private void updateEmployeePayrollDataUsingStatement(String name, Double salary)
 			throws EmployeePayrollServiceException, SQLException {
-		String query = String.format("update emplyee_Payroll set salary=950000.00f where name='SURAJ'", salary, name);
+		String query = String.format("update emplyee_Payroll set salary=%f where name='%s'", salary, name);
 		try {
 			connection = employeePayrollService.connectingToDatabase();
 			statementOpted = connection.createStatement();
@@ -139,7 +139,7 @@ public class EmployeePayrollService {
 			throws EmployeePayrollServiceException, SQLException {
 		
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<EmployeePayrollData>();
-		String query = String.format("select * from employee_payroll where name='SURAJ'", name);
+		String query = String.format("select * from employee_payroll where name='%s'", name);
 		try {
 			connection = employeePayrollService.connectingToDatabase();
 			statementOpted = connection.createStatement();
@@ -239,8 +239,8 @@ public class EmployeePayrollService {
 	}
 	
 	public List<EmployeePayrollData> getEmployeePayrollDataByDateOfStarting(LocalDate startDate, LocalDate endDate)
-			throws EmployeePayrollServiceException {
-		String query = String.format("select * from employee_payroll where start between cast('%s' as date) and cast('%s' as date);");
+			throws EmployeePayrollServiceException, SQLException {
+		String query = String.format("select * from employee_payroll where start between cast('%s' as date) and cast('%s' as date);",startDate, endDate);
 		try {
 			connection=employeePayrollService.connectingToDatabase();
 			statementOpted = connection.createStatement();
@@ -249,22 +249,26 @@ public class EmployeePayrollService {
 		} catch (SQLException e) {
 			throw new EmployeePayrollServiceException("Connection Failed.");
 		}
+		finally {
+			if (connection != null)
+				connection.close();
+		}
 	}
 	
-	public void makeComputations(TypeOfCalculation calculationType) throws EmployeePayrollServiceException {
+	public void makeComputations(TypeOfCalculation calculationType) throws EmployeePayrollServiceException, SQLException {
 		Double maleCalcResult=0.0;
 		Double femaleCalcResult=0.0;
 		String query=null;
-		switch(calcType) {
-		case AVG:query=String.format("select gender, AVG(salary) from employee_payroll group by gender");
+		switch(calculationType) {
+		case AVG:query=String.format("select %sGENDER,%d AVG(SALARY) from employee_payroll group by gender");
 		         break;
-		case SUM:query=String.format("select gender, SUM(salary) from employee_payroll group by gender");
+		case SUM:query=String.format("select %sGENDER,%dSUM(SALARY) from employee_payroll group by gender");
                  break;   
-		case COUNT:query=String.format("select gender, COUNT(salary) from employee_payroll group by gender");
+		case COUNT:query=String.format("select %sGENDER,%dCOUNT(SALARY) from employee_payroll group by gender");
                  break;
-		case MIN:query=String.format("select gender, SUM(salary) from employee_payroll group by gender");
+		case MIN:query=String.format("select %sGENDER,%dSUM(SALARY) from employee_payroll group by gender");
                 break;
-		case MAX:query=String.format("select gender, SUM(salary) from employee_payroll group by gender");
+		case MAX:query=String.format("select %sGENDER,%dSUM(SALARY) from employee_payroll group by gender");
                    break;
 		}
 		try {
@@ -273,8 +277,8 @@ public class EmployeePayrollService {
 			 resultSetOpted = statementOpted.executeQuery(query);
 			
 			while(resultSetOpted.next()) {
-				if(resultSetOpted.getString("gender").equals("M")) maleCalcResult=resultSetOpted.getDouble("salary");
-				else femaleCalcResult=resultSetOpted.getDouble("salary");
+				if(resultSetOpted.getString("GENDER").equals("M")) maleCalcResult=resultSetOpted.getDouble("SALARY");
+				else femaleCalcResult=resultSetOpted.getDouble("SALARY");
 			}
 			log.info("Female Total calculation"+femaleCalcResult);
 			log.info("Male Total calculation"+maleCalcResult);
@@ -282,9 +286,11 @@ public class EmployeePayrollService {
 		} catch (SQLException e) {
 			throw new EmployeePayrollServiceException("Unable to use resultset");
 		}
+		finally {
+			if (connection != null)
+				connection.close();
+		}
 	}
 
-
-	
 
 }
