@@ -40,7 +40,7 @@ public class EmployeePayrollService {
 
 		String jdbcurl = "jdbc:mysql://127.0.0.1:3306/payroll_service?useSSL=false";
 		String userName = "root";
-		String password = "Heybro@1234";
+		String password = "HeyBro@1234";
 		Connection connection;
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -91,7 +91,7 @@ public class EmployeePayrollService {
 
 	private void updateEmployeePayrollDataUsingStatement(String name, Double salary)
 			throws EmployeePayrollServiceException, SQLException {
-		String query = String.format("update emplyee_Payroll set salary=950000.00f where name='SURAJ'", salary, name);
+		String query = String.format("update emplyee_Payroll set salary=%f where name='%s'", salary, name);
 		try {
 			connection = employeePayrollService.connectingToDatabase();
 			statementOpted = connection.createStatement();
@@ -108,7 +108,7 @@ public class EmployeePayrollService {
 
 	private void updateEmployeeSalary(String name, Double salary)
 			throws EmployeePayrollServiceException, SQLException {
-		String query = String.format("update emplyee_Payroll set salary=950000.00f where name='SURAJ'", salary, name);
+		String query = String.format("update emplyee_Payroll set salary=%f where name='%s'", salary, name);
 		try {
 			connection = employeePayrollService.connectingToDatabase();
 			statementOpted = connection.createStatement();
@@ -126,7 +126,7 @@ public class EmployeePayrollService {
 			throws EmployeePayrollServiceException, SQLException {
 		
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<EmployeePayrollData>();
-		String query = String.format("select * from employee_payroll where name='SURAJ'", name);
+		String query = String.format("select * from employee_payroll where name='%s'", name);
 		try {
 			connection = employeePayrollService.connectingToDatabase();
 			statementOpted = connection.createStatement();
